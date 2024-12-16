@@ -41,7 +41,12 @@ local function UniqueProgressBarError(num, errorVar, funcName, expectedType, cus
 	local messageAppend = customMessage ~= nil and customMessage or
 		"Attempt to index a " .. type(errorVar) .. " value, field '" .. tostring(errorVar) ..
 		"', expected " .. expectedType .. "."
-	error(messageStart .. messageAppend, 3)
+	if customMessage then
+		print(customMessage)
+		Isaac.DebugString(customMessage .. "\n")
+	else
+		error(messageStart .. messageAppend, 3)
+	end
 end
 
 ---@param playerType PlayerType
@@ -107,7 +112,7 @@ function UniqueProgressBarIcon.SetIcon(playerType, anm2, animation)
 		wasLoaded = true
 	end
 	if not wasLoaded then
-		UniqueProgressBarError("2", anm2, "SetIcon", "string", "(Anm2 failed to load).")
+		UniqueProgressBarError("2", anm2, "SetIcon", "string", "(Anm2 \"" .. anm2 .. "\" failed to load).")
 		return
 	end
 
@@ -116,7 +121,7 @@ function UniqueProgressBarIcon.SetIcon(playerType, anm2, animation)
 	if type(anm2) == "string" then
 		sprite:Play(animation)
 		if not sprite:IsPlaying(animation) then
-			UniqueProgressBarError("3", animation, "SetIcon", "string", "(Animation name is invalid).")
+			UniqueProgressBarError("3", animation, "SetIcon", "string", "(Animation name \"" .. animation .. "\" is invalid).")
 			return
 		end
 	end
