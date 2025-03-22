@@ -408,16 +408,13 @@ local function adjustIconColorForStageAPI(icon)
 end
 
 ---@param renderPos Vector
-function mod:RenderIsaacIcons(renderPos, isStageAPI)
-	local iconSprite = NightmareScene.GetProgressBarSprite()
-	if isStageAPI then
-		iconSprite = StageAPI.TransitionAnimationData.Sprites.IsaacIndicator
-	end
+function mod:RenderIsaacIcons(renderPos, iconSprite)
 	local iconFrameData, shadowFrameData = getIconFrameData(iconSprite)
 	if not iconFrameData or not shadowFrameData then return end
 	local iconScale = iconFrameData:GetScale()
 	local iconOffset = iconFrameData:GetPos()
 	local shadowScale = shadowFrameData:GetScale()
+	local state = StageAPI and StageAPI.TransitionAnimationData.State
 
 	for playerNum, iconData in ipairs(isaacIcons) do
 		if iconData.TwinData then
@@ -425,7 +422,7 @@ function mod:RenderIsaacIcons(renderPos, isStageAPI)
 			local sprite = iconData.TwinData.Icon
 			sprite.Offset = iconOffset
 			sprite.Scale = iconScale
-			if isStageAPI then
+			if state and state == 2 then
 				adjustIconColorForStageAPI(sprite)
 			end
 			renderIsaacIcon(iconData.TwinData, Vector(renderPos.X + 2, renderPos.Y), playerNum)
@@ -434,7 +431,7 @@ function mod:RenderIsaacIcons(renderPos, isStageAPI)
 		local sprite = iconData.Icon
 		sprite.Offset = iconOffset
 		sprite.Scale = iconScale
-		if isStageAPI then
+		if state and state == 2 then
 			adjustIconColorForStageAPI(sprite)
 		end
 		renderIsaacIcon(iconData, renderPos, playerNum)
@@ -462,7 +459,7 @@ function mod:OnNightmareRender()
 			movingPos = movingPos - ICON_SPEED
 		end
 	end
-	mod:RenderIsaacIcons(renderPos)
+	mod:RenderIsaacIcons(renderPos, NightmareScene.GetProgressBarSprite())
 end
 
 mod:AddCallback(ModCallbacks.MC_POST_NIGHTMARE_SCENE_RENDER, mod.OnNightmareRender)
@@ -511,11 +508,10 @@ function mod:RenderForStageAPI(name)
 		Isaac.RunCallback(UniqueProgressBarIcon.Callbacks.POST_ICONS_INIT, isaacIcons, shadowLocations)
 	end
 
-	mod:RenderIsaacIcons(renderPos, true)
+	mod:RenderIsaacIcons(renderPos, StageAPI.TransitionAnimationData.Sprites.IsaacIndicator)
 end
 
 mod:AddCallback(ModCallbacks.MC_GET_SHADER_PARAMS, mod.RenderForStageAPI)
 
 --#endregion
 
-return mod
